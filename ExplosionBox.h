@@ -20,26 +20,29 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	UPROPERTY(BlueprintReadWrite, Category = "status", meta = (AllowPrivateAccess = "true"), Replicated)
-	float boxHP;
+	UPROPERTY(ReplicatedUsing = OnRep_HealthUpdate, BlueprintReadWrite, Category = "status", meta = (AllowPrivateAccess = "true"))
+	float boxHealth;
 
 public:
-	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_TakeDamage();
-	bool Server_TakeDamage_Validate();
-	void Server_TakeDamage_Implementation();
-
-	UFUNCTION(NetMulticast, Reliable, WithValidation)
-	void Multi_TakeDamage(float _hp, bool _bDeath);
-	bool Multi_TakeDamage_Validate(float _hp, bool _bDeath);
-	void Multi_TakeDamage_Implementation(float _hp, bool _bDeath);
+	UFUNCTION()
+	void OnRep_HealthUpdate();
 
 	UFUNCTION(BlueprintCallable)
 	void BoxDamage();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void DrawHp(float _hp);
+	void DrawHp();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void Explosion();
+
+	UFUNCTION(Server, Unreliable, WithValidation, BlueprintCallable)
+	void Server_Destroy();
+	bool Server_Destroy_Validate();
+	void Server_Destroy_Implementation();
+
+	UFUNCTION(NetMulticast, Reliable, WithValidation)
+	void Multi_Destroy();
+	bool Multi_Destroy_Validate();
+	void Multi_Destroy_Implementation();
 };
